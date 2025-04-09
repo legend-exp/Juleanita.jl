@@ -9,7 +9,7 @@ function _quantile_truncfit(x::Matrix; qmin::T= 0.02, qmax::T = 0.98) where T<:R
     xmaxs = zeros(nrows,1)
 
     for i = 1:nrows
-        if  isempty(filter(.!ismissing, x[i,:]))
+        if  isempty(filter(.!ismissing, x[i,:])) || all(isnan.(x[i,:]))
             xmins[i], xmaxs[i] = NaN, NaN
         else
             xmins[i], xmaxs[i] = _quantile_truncfit(x[i,:]; qmin = qmin, qmax = qmax) 

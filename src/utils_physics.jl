@@ -1,9 +1,11 @@
 
+### Constants
 """
     charge of electron in Coulomb
 """
 const electron_charge = 1.60217662e-19 # C
 
+### Germanium specifics 
 """
 GeBandgap(T::Real)
 bandgap energy (eV) of germanium as a function of temperature (K)
@@ -28,28 +30,52 @@ function Ge_NumberChargeCarrier(E::Real, T::Real)
 return E / Ge_Energy_per_eholePair(T)
 end 
 
+###  Conversion util functions (ADC - Volts - electrons - keV)
 """
-    DAQ_ADC_to_V(ADC::Real, dynamicrange_V::Real, bits::Int)
-Convert ADC-code from digitizer into voltage. The ADC-code is assumed to be in the range.
+    _ADC_to_V(ADC::Real, dynamicrange_V::Real, bits::Int)
+Convert ADC-code from digitizer into voltage. The ADC-code is assumed to be in the range [0, 2^bits] corresponding to voltages within the dynamic range.
+INPUTS:
+- ADC: ADC-code from digitizer
+- dynamicrange_V: dynamic range of the DAQ in Volts
+- bits: number of bits of the ADC
 """ 
-function DAQ_ADC_to_V(ADC::Real, dynamicrange_V::Real, bits::Int)
+function _ADC_to_V(ADC::Real, dynamicrange_V::Real, bits::Int)
     return (dynamicrange_V / 2^bits) * ADC
 end
 
 """
-    pulser_ADC_to_electrons(ADC::Real, C_pulser::Real; bits::Int = 14, dynamicrange_V::Real = 2.0, gain::Real = 1.0)
+    _ADC_to_electrons(ADC::Real, capacitance_F::Real; bits::Int = 14, dynamicrange_V::Real = 2.0, gain::Real = 1.0)
 Convert ADC-code from pulser into injected charge in pulser_ADC_to_electrons
+Inputs:
+- ADC: ADC-code from digitizer  
+- capacitance_F: capacitance of the system (could be pulser, detector, or combination) in Farad
+- bits: number of bits of the ADC
+- dynamicrange_V: dynamic range of the DAQ in Volts
+- gain: gain of the system
 """
-function pulser_ADC_to_electrons(ADC::Real, C_pulser::Real; bits::Int = 14,  dynamicrange_V::Real = 2.0, gain::Real = 1.0)
-    V = DAQ_ADC_to_V(ADC, dynamicrange_V, bits)
-    return  (V/gain * C_pulser) / electron_charge  # charge in electrons
+function _ADC_to_electrons(ADC::Real, capacitance_F::Real; bits::Int = 14,  dynamicrange_V::Real = 2.0, gain::Real = 1.0)
+    V = _ADC_to_V(ADC, dynamicrange_V, bits)
+    return  (V/gain * capacitance_F) / electron_charge  # charge in electrons
 end
 
 """
-    pulser_ADC_to_keV(ADC::Real, C_pulser::Real; bits::Int = 14, dynamicrange_V::Real = 2.0, gain::Real = 1.0)
+    pulser_ADC_to_keV(ADC::Real, capacitance_F::Real; bits::Int = 14, dynamicrange_V::Real = 2.0, gain::Real = 1.0)
 Convert ADC-code from pulser into injected energy in keV.
+Inputs: 
+- ADC: ADC-code from digitizer
+- capacitance_F: capacitance of the system (could be pulser, detector, or combination) in Farad
+- bits: number of bits of the DAQ
+- dynamicrange_V: dynamic range of the ADC in Volts
+- gain: gain of the system
 """
-function pulser_ADC_to_keV(ADC::Real, C_pulser::Real; bits::Int = 14,  dynamicrange_V::Real = 2.0, gain::Real = 1.0)
-    return  pulser_ADC_to_electrons(ADC, C_pulser; bits = bits, dynamicrange_V = dynamicrange_V, gain = gain) * Ge_Energy_per_eholePair(90) / 1e3
+function pulser_ADC_to_keV(ADC::Real, capacitance_F::Real; bits::Int = 14,  dynamicrange_V::Real = 2.0, gain::Real = 1.0)
+    return  pulser_ADC_to_electrons(ADC, capacitance_F; bits = bits, dynamicrange_V = dynamicrange_V, gain = gain) * Ge_Energy_per_eholePair(90) / 1e3
 end
 
+"""
+    V_to_electrons(Voltage_V::Real, capacitance_F::Real; gain::Real = 1.0)
+Convert voltage into a charge in electrons based on the capacitance of the system (could be pulser, detector, or combination).
+"""
+function V_to_electrons(Voltage_V::Real, capacitance_F::Real; gain::Real = 1.0)
+    return (Voltage_V/gain * capacitance_F) / electron_charge  # charge in electrons
+end
