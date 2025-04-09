@@ -1,24 +1,32 @@
 using Juleanita
 using Documenter
 
-DocMeta.setdocmeta!(Juleanita, :DocTestSetup, :(using Juleanita); recursive=true)
+DocMeta.setdocmeta!(
+        Juleanita, 
+        :DocTestSetup, 
+        :(using Juleanita); 
+        recursive=true)
 
 makedocs(;
     modules=[Juleanita],
     authors="LisaSchlueter <lschlueter@lbl.gov> and contributors",
     sitename="Juleanita.jl",
-    format=Documenter.HTML(;
-        canonical="https://LisaSchlueter.github.io/Juleanita.jl",
-        edit_link="main",
-        assets=String[],
+    format=Documenter.HTML(
+        prettyurls = !("local" in ARGS),
+        canonical="https://LisaSchlueter.github.io/Juleanita.jl/stable/",
     ),
     pages=[
         "Home" => "index.md",
-        "Reference" => "reference.md",
+        "API" => "api.md",
+        "LICENSE" => "LICENSE.md",
     ],
+    doctest = ("fixdoctests" in ARGS) ? :fix : true,
+    linkcheck = !("nonstrict" in ARGS),
+    warnonly = ("nonstrict" in ARGS),
 ) 
 
 deploydocs(;
     repo="github.com/LisaSchlueter/Juleanita.jl",
-    devbranch="main",
+    forcepush = true, 
+    push_preview = true,
 )
