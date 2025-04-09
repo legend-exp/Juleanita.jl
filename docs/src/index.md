@@ -4,11 +4,11 @@ CurrentModule = Juleanita
 
 # Juleanita
 
-Documentation for [Juleanita](https://github.com/"LisaSchlueter"/Juleanita.jl).
+Documentation for [Juleanita](https://github.com/LisaSchlueter/Juleanita.jl).
+Juleanita is a meta-package for the Julia software stack to analyse teststand data for the LEGEND experiment.
 
-```@index
+## Install 
+```julia-repl
+pkg> add https://github.com/LisaSchlueter/Juleanita.jl.git
 ```
 
-```@autodocs
-Modules = [Juleanita]
-```

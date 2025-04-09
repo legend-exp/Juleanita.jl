@@ -8,16 +8,17 @@ makedocs(;
     authors="LisaSchlueter <lschlueter@lbl.gov> and contributors",
     sitename="Juleanita.jl",
     format=Documenter.HTML(;
-        canonical="https://"LisaSchlueter".github.io/Juleanita.jl",
+        canonical="https://LisaSchlueter.github.io/Juleanita.jl",
         edit_link="main",
         assets=String[],
     ),
     pages=[
         "Home" => "index.md",
+        "Reference" => "reference.md",
     ],
-)
+) 
 
 deploydocs(;
-    repo="github.com/"LisaSchlueter"/Juleanita.jl",
+    repo="github.com/LisaSchlueter/Juleanita.jl",
     devbranch="main",
 )
