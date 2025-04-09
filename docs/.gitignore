@@ -1,2 +1,6 @@
 build/
 site/
+*.lh5
+*.h5
+*.json
+Manifest.toml

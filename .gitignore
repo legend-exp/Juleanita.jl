@@ -1,7 +1,16 @@
+# binary files
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
+*.lh5
+*.h5
+*.json
+*.csv
+
+# Julia / system files
 /Manifest*.toml
 /docs/Manifest*.toml
+/test/Manifest*.toml
 /docs/build/
 .vscode/
+.DS_Store

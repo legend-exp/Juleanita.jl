@@ -23,8 +23,9 @@ function read_csv_metadata(filepath::String; heading::Int = 17, nChannels::Int =
 
     # read header from csv file 
     header_fileds = CSV.read(filepath, DataFrame; delim=',', limit = heading-1, header = false)
-    MetaData1_lbls = replace.(collect(header_fileds.Column1), " " => "")
-    MetaData1_vals = collect(header_fileds.Column2)
+    idx = findall(.!ismissing.(collect(header_fileds.Column1)))
+    MetaData1_lbls = replace.(collect(header_fileds.Column1)[idx], " " => "")
+    MetaData1_vals = collect(header_fileds.Column2)[idx]
     IdxKeep = map(x -> !ismissing(x), MetaData1_vals)
     MetaData1_nt = NamedTuple{Tuple(Symbol.(MetaData1_lbls[IdxKeep]))}(Tuple(MetaData1_vals[IdxKeep]))
     for (k, val) in pairs(MetaData1_nt)
@@ -256,18 +257,25 @@ convert csv files from Skutek digitizer "FemtoDAQ Vireo" to lh5 files
 - `csv_folder::String` folder where the csv files are located (optinal). if not defined use the default folder
 ### kwargs
 - `timestep::Quantity` time step of the waveforms.  default is 0.01µs --> 100 MHz sampling. 
-- chmode::Symbol = :diff: mode of the digitizer. :diff for differential mode, :pulser for pulser mode (work in progress)
+- chmode::Symbol = :diff 
+    - `:diff`  ch1 - ch2 is stored as `raw/waveform`
+    - `:diffplus` ch1 - ch2 is stored as `raw/waveform` **AND** both channels are stored as `raw/waveform_ch1` and `raw/waveform_ch2` (if available in data)
+    - `:single` ch1 is stored as `raw/waveform` and ch2 is stored as `raw/waveform_ch2` (if available in data)
+    - `:pulser` ch1 is stored as `raw/waveform` and ch2 is stored as `raw/pulser`
 """
 function sktutek_csv_to_lh5 end
 export skutek_csv_to_lh5
 function skutek_csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, category::Union{Symbol, DataCategory}, channel::ChannelId, csv_folder::String; timestep::Quantity = 0.01u"µs", chmode::Symbol = :diff)
-   # create folder to save lh5 files
+    if chmode ∉ [:diff, :diffplus, :pulser, :single]
+        error("chmode $chmode not supported - choose one of :diff, :diffplus, :pulser, :single")
+    end
+    # create folder to save lh5 files
     h5folder = data.tier[DataTier(:raw), category, period, run] * "/"
     if !ispath(h5folder)
         mkpath(h5folder)
         @info "created folder: $h5folder"
     end
-    @info "folder: $h5folder"
+
     # get list of all .ecsv files in csv_folder 
     files_csv = readdir(csv_folder, join = true)
     filter!(x -> occursin(".ecsv", x), files_csv)
@@ -294,16 +302,19 @@ function skutek_csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, c
        
         # Read channels 
         channel1 = map(x -> Int32.(x), JSON.parse.(f.ch1))
-        channel2 = map(x -> Int32.(x), JSON.parse.(f.ch2))
+        channel2 = if nchannel > 1
+            map(x -> Int32.(x), JSON.parse.(f.ch2))
+        else 
+            []
+        end 
         nsamples = length(channel1[1])
         times = 0.0u"µs":timestep:((nsamples - 1)*timestep)
 
-        if (chmode == :diff) || (chmode == :single)
+        if (chmode == :diff) || (chmode == :diffplus)
             ch_diff = channel1 .- channel2
             wvfs = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel1)), ch_diff)])
-        elseif chmode == :pulser
+        else
             wvfs = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel1)), channel1)])
-            pulser = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel2)), channel2)])
         end 
 
         # save to lh5 files 
@@ -313,16 +324,18 @@ function skutek_csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, c
 
         fid = lh5open(h5name, "w")
         fid["$channel/raw/waveform"]  = wvfs
+        if chmode == :diffplus 
+            fid["$channel/raw/waveform_ch1"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel1)), channel1)])
+            fid["$channel/raw/waveform_ch2"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel2)), channel2)])
+        elseif chmode == :pulser
+            fid["$channel/raw/pulser"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel2)), channel2)])
+        elseif chmode == :single && !isempty(channel2)
+            fid["$channel/raw/waveform_ch2"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel2)), channel2)])  
+        end
         fid["$channel/raw/daqenergy"] = maximum.(extrema.(wvfs.signal)) .- minimum.(extrema.(wvfs.signal)) #DAQ energy not available in oscilloscope, approx with difference between max and min, needed for compatibility with LEGEND functions
         fid["$channel/raw/eventnumber"]  = eventnumber
         fid["$channel/raw/timestamp"]  = timestamp_unix 
         fid["$channel/raw/baseline"] = fill(NaN, length(wvfs)) # not available in csv files, but needed for compatibility with LEGEND functions
-        if chmode == :pulser
-            fid["$channel/raw/pulser"]  = pulser
-        elseif chmode == :single 
-            fid["$channel/raw/waveform_ch1"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel1)), channel1)])
-            fid["$channel/raw/waveform_ch2"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel2)), channel2)])
-        end
         @info "saved $(length(wvfs)) waveforms in .lh5 files with filekey: $filekey"
         close(fid)
 
