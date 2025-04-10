@@ -98,7 +98,7 @@ function process_filteropt(data::LegendData, period::DataPeriod, run::DataRun, c
         # 2. flat top time optimixation 
         ft_qmin, ft_qmax = dsp_config.kwargs_pars.ft_qmin, dsp_config.kwargs_pars.ft_qmax
         e_grid_ft   = getproperty(dsp_config, Symbol("e_grid_ft_$(filter_type)"))
-        e_grid = getfield(Main, Symbol("dsp_$(filter_type)_ft_optimization"))(wvfs, dsp_config, τ_pz, mvalue(result_rt.rt_opt))
+        e_grid = getfield(LegendDSP, Symbol("dsp_$(filter_type)_ft_optimization"))(wvfs, dsp_config, τ_pz, mvalue(result_rt.rt_opt))
         e_min, e_max = _quantile_truncfit(e_grid; qmin = ft_qmin, qmax = ft_qmax)
         result_ft, report_ft = fit_fwhm_ft(e_grid, e_grid_ft, result_rt.rt_opt,  e_min, e_max, fwhm_rel_cut_fit; peak = data_peak.gamma_line[1])
         @info "Found optimal flattop-time: $(result_ft.ft) with FWHM $(round(u"keV", result_ft.min_fwhm, digits=2))"

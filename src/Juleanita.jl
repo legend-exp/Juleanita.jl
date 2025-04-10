@@ -47,5 +47,6 @@ include("process_qualitycuts.jl")
 include("process_energy_calibration.jl")
 include("process_hit.jl")
 include("process_peakfits.jl")
+include("process_noisesweep.jl")
 end
 

@@ -18,7 +18,7 @@ end
 Ge_Energy_per_eholePair(T::Real)
 energy (eV) required to create an electron-hole pair in germanium as a function of temperature (K)
 """
-function GeEnergyer_eholePair(T::Real)
+function Ge_Energy_per_eholePair(T::Real)
     return 2.2 * GeBandgap(T) + 1.99 * GeBandgap(T)^(3/2) * exp(4.75 * GeBandgap(T) / T)
 end
 
@@ -68,8 +68,8 @@ Inputs:
 - dynamicrange_V: dynamic range of the ADC in Volts
 - gain: gain of the system
 """
-function pulser_ADC_to_keV(ADC::Real, capacitance_F::Real; bits::Int = 14,  dynamicrange_V::Real = 2.0, gain::Real = 1.0)
-    return  pulser_ADC_to_electrons(ADC, capacitance_F; bits = bits, dynamicrange_V = dynamicrange_V, gain = gain) * Ge_Energy_per_eholePair(90) / 1e3
+function _ADC_to_keV(ADC::Real, capacitance_F::Real; bits::Int = 14,  dynamicrange_V::Real = 2.0, gain::Real = 1.0)
+    return _ADC_to_electrons(ADC, capacitance_F; bits = bits, dynamicrange_V = dynamicrange_V, gain = gain) * Ge_Energy_per_eholePair(90) / 1e3
 end
 
 """

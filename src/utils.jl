@@ -24,12 +24,14 @@ function _channel2detector(data::LegendData, channel::ChannelId)
     channels   = [ChannelId(data.metadata.hardware.detectors.germanium[k].channel) for k in keys(data.metadata.hardware.detectors.germanium)]
     detectors[findfirst(x -> x== channel, channels)]
 end
+export _channel2detector
 
 function _detector2channel(data::LegendData, detector::DetectorId)
     detectors = [DetectorId(Symbol(data.metadata.hardware.detectors.germanium[k].name)) for k in keys(data.metadata.hardware.detectors.germanium)]
     channels = [ChannelId(data.metadata.hardware.detectors.germanium[k].channel) for k in keys(data.metadata.hardware.detectors.germanium)]
     channels[findfirst(x -> x== detector, detectors)]
 end
+export  _detector2channel
 
 function _get_pltfilename(data::LegendData, filekey::FileKey, channel::ChannelIdLike, process::Symbol)
     pname = split(LegendDataManagement.LDMUtils.get_pltfilename(data, filekey, channel, process),"/")[end]
@@ -37,6 +39,7 @@ function _get_pltfilename(data::LegendData, filekey::FileKey, channel::ChannelId
     ifelse(isempty(readdir(d)), rm(d), nothing )
     return pname 
 end
+export _get_pltfilename
 
 
 
