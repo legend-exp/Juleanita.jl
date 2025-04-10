@@ -98,7 +98,7 @@ function filteropt_rt_optimization_blnoise(filter_type::Symbol, wvfs::ArrayOfRDW
         result = optimize(f_interp, minimum(grid_rt), maximum(grid_rt)) 
         rt_opt = Optim.minimizer(result)*u"µs" # optimial rise time for trap filter
         min_noise = Optim.minimum(result)
-        (rt_opt = rt_opt, min_noise = min_noise), (rt_opt = rt_opt, min_noise = min_noise, rt = grid_rt.*u"µs", noise = noise, f_interp = f_interp)
+        (rt_opt = rt_opt, min_noise = min_noise), (rt_opt = rt_opt, min_noise = min_noise, rt = grid_rt.*u"µs", noise = noise, f_interp = f_interp, ft = ft)
     end
     return result, report 
 end
@@ -106,7 +106,7 @@ end
 function noise_sweep(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig; kwargs... ) 
     result, report  = filteropt_rt_optimization_blnoise(filter_type, wvfs, dsp_config,  0.0u"µs"; kwargs... )
 
-    return (rt_opt = result.rt_opt, min_noise = result.min_noise, rt = report.rt, noise = report.noise), report 
+    return (rt_opt = result.rt_opt, min_noise = result.min_noise, rt = report.rt, noise = report.noise, ft = report.ft), report 
 end 
 export noise_sweep
 

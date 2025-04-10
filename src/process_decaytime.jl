@@ -44,6 +44,7 @@ function process_decaytime(data::LegendData, period::DataPeriod, run::DataRun, c
     mkpath(joinpath(data_path(data.par.rpars.pz), string(period)))
     
     if peak == :all 
+        filekeys = search_disk(FileKey, data.tier[DataTier(:raw), category , period, run])
         data_peak = read_ldata(data, DataTier(:raw), filekeys, channel)
     else
         data_peak  = read_ldata((peak), data, :jlpeaks, category, period, run, channel)
