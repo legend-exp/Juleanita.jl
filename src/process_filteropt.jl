@@ -64,17 +64,18 @@ function process_filteropt(data::LegendData, period::DataPeriod, run::DataRun, c
 
         # STEP 1: rise-time optimization --> min. baseline noise after filtering 
         if rt_opt_mode == :bl_noise 
-            result_rt, report_rt = filteropt_rt_optimization_blnoise(filter_type, wvfs, dsp_config, τ_pz; ft = def_ft)
+            result_rt, report_rt = noise_sweep(filter_type, wvfs, dsp_config, τ_pz; ft = def_ft)
            
-            rt_inter = range(ustrip.(report_rt.rt[1]), stop = ustrip(maximum(report_rt.rt[findall(isfinite.(report_rt.noise))])), step = 0.05); 
-            p = Figure()
-            ax = Axis(p[1, 1], 
-                xlabel = "Rise time ($(unit(report_rt.rt_opt)))", ylabel = "Noise (a.u.)",
-                limits = ((ustrip.(extrema(report_rt.rt))[1] - 0.2, ustrip.(extrema(report_rt.rt))[2] + 0.2), (nothing, nothing)),
-                title = "Noise sweep ($filter_type), $period-$run-$channel, $peak peak \n" * @sprintf("fixed ft = %.2f %s, optimal rt = %.1f %s", ustrip(def_ft), unit(def_ft), ustrip(report_rt.rt_opt), unit(report_rt.rt_opt)), )
-            lines!(ax, rt_inter, report_rt.f_interp.(rt_inter), color = :deepskyblue2, linewidth = 3, linestyle = :solid, label = "Interpolation")
-            Makie.scatter!(ax, ustrip.(collect(report_rt.rt)), report_rt.noise,  color = :black, label = "Data")
-            axislegend()
+            # rt_inter = range(ustrip.(report_rt.rt[1]), stop = ustrip(maximum(report_rt.rt[findall(isfinite.(report_rt.noise))])), step = 0.05); 
+            p = plot_noise_sweep(report_rt, :ADC; title = get_plottitle(filekeys[1], _channel2detector(data, channel), "Noise sweep") * " $filter_type").fig 
+            # p = Figure()
+            # ax = Axis(p[1, 1], 
+            #     xlabel = "Rise time ($(unit(report_rt.rt_opt)))", ylabel = "Noise (a.u.)",
+            #     limits = ((ustrip.(extrema(report_rt.rt))[1] - 0.2, ustrip.(extrema(report_rt.rt))[2] + 0.2), (nothing, nothing)),
+            #     title = "Noise sweep ($filter_type), $period-$run-$channel, $peak peak \n" * @sprintf("fixed ft = %.2f %s, optimal rt = %.1f %s", ustrip(def_ft), unit(def_ft), ustrip(report_rt.rt_opt), unit(report_rt.rt_opt)), )
+            # lines!(ax, rt_inter, report_rt.f_interp.(rt_inter), color = :deepskyblue2, linewidth = 3, linestyle = :solid, label = "Interpolation")
+            # Makie.scatter!(ax, ustrip.(collect(report_rt.rt)), report_rt.noise,  color = :black, label = "Data")
+            # axislegend()
             pname = plt_folder * split(LegendDataManagement.LDMUtils.get_pltfilename(data, filekeys[1], channel, Symbol("noise_sweep_$(filter_type)_blnoise")),"/")[end]
             d = LegendDataManagement.LDMUtils.get_pltfolder(data, filekeys[1], Symbol("noise_sweep_$(filter_type)_blnoise"))
             ifelse(isempty(readdir(d)), rm(d), nothing )

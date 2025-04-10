@@ -32,7 +32,7 @@ using TypedTables
 using Unitful
 
 include("apply_qc.jl")
-include("filteropt_rt_optimization_blnoise.jl")
+include("noise_sweep.jl")
 include("fit_linearity.jl")
 include("IO_csv.jl")
 include("utils.jl")
