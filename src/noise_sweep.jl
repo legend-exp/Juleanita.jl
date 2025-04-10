@@ -1,31 +1,38 @@
+
+"""
+    rms(x::Vector{T}) where {T <: Real}
+Calculate the RMS of a vector of real numbers.
+"""
 function rms(x::Vector{T}) where {T <: Real} 
     sqrt(mean(x.^2))
 end
 export rms
+
 """
-    filteropt_rt_optimization_blnoise(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig, τ_pz::Quantity{T}; ft::Quantity{T}= 0.0u"µs", τ_cusp::Quantity{<:AbstractFloat} = 10000000.0u"µs", τ_zac::Quantity{<:AbstractFloat} = 10000000.0u"µs" ) where T<:Real
-    filteropt_rt_optimization_blnoise(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig; kwargs... )
-DSP filter optimization to find best rise-time (for a given flat-top time) to minimize ENC noise. This is an alternative way to calculate the enc noise compared to `dsp_trap_rt_optimization`.
-Strategy: 
-    filteropt_rt_optimization_blnoise(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig, τ_pz::Quantity{T}; ft::Quantity{T}= 0.0u"µs", τ_cusp::Quantity{<:AbstractFloat} = 10000000.0u"µs", τ_zac::Quantity{<:AbstractFloat} = 10000000.0u"µs" ) where T<:Real
+    noise_sweep(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig, τ_pz::Quantity{T}; ft::Quantity{T}= 0.0u"µs", τ_cusp::Quantity{<:AbstractFloat} = 10000000.0u"µs", τ_zac::Quantity{<:AbstractFloat} = 10000000.0u"µs" ) where T<:Real
+    noise_sweep(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig; kwargs... )
+Noise sweep function used in DSP filter optimizatio. The goal is to find the optimal rise-time (for a given flat-top time) which minimizes ENC noise.
+This is an alternative approach to `dsp_trap_rt_optimization`.
+
+## Strategy: 
 - Shift waveforms to have a common baseline, and deconvolute them with the pole-zero correction (in case τ_pz > 0.0u"µs" )
 - Filter waveforms with given rise-time and flat-top time
 - Build histogram out of all samples in baseline from all waveforms. Remove bins at the beginning and end of the waveform to avoid edge effects.
 - Calculate the RMS of the baseline noise --> ENC noise
 
-Inputs:
+## Inputs:
 - `filter_type::Symbol`: filter type (:trap or :cusp)
 - `wvfs::ArrayOfRDWaveforms`: raw waveforms to be filtered
 - `dsp_config::DSPConfig`: DSP configuration object containing relevant parameters: `ft`, `grid_rt`, `bl_window`, `flt_length_cusp`,  `flt_length_zac`
 - `τ_pz::Quantity{T}`: pole-zero decay time. If τ_pz = 0.0u"µs" (or none given), no pole-zero correction is applied.
-Optional inputs:
+## kwargs:
 - `ft::Quantity{T}`: fixed flat-top time for optimization
 - `τ_cusp::Quantity{<:AbstractFloat}`: cusp decay time; only relevant for cusp filter
 - `τ_zac::Quantity{<:AbstractFloat}`: cusp decay time; only relevant for zac filter
 """
-function filteropt_rt_optimization_blnoise end
-export filteropt_rt_optimization_blnoise
-function filteropt_rt_optimization_blnoise(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig, τ_pz::Quantity{T}; 
+function noise_sweep end
+export noise_sweep
+function noise_sweep(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig, τ_pz::Quantity{T}; 
              ft::Quantity{T}= 0.0u"µs", τ_cusp::Quantity{<:AbstractFloat} = 10000000.0u"µs", τ_zac::Quantity{<:AbstractFloat} = 10000000.0u"µs" ) where T<:Real
 
     # gather config parameters 
@@ -102,14 +109,5 @@ function filteropt_rt_optimization_blnoise(filter_type::Symbol, wvfs::ArrayOfRDW
     end
     return result, report 
 end
-
-function noise_sweep(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig; kwargs... ) 
-    result, report  = filteropt_rt_optimization_blnoise(filter_type, wvfs, dsp_config,  0.0u"µs"; kwargs... )
-
-    return (rt_opt = result.rt_opt, min_noise = result.min_noise, rt = report.rt, noise = report.noise, ft = report.ft), report 
-end 
-export noise_sweep
-
-
-
+noise_sweep(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig; kwargs...) =  noise_sweep(filter_type, wvfs, dsp_config,  0.0u"µs"; kwargs... ) 
 
