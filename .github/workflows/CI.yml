@@ -4,9 +4,10 @@ on:
     branches:
       - main
       - dev
-    tags: ['*']
+      - 'releases/**'
+    tags: '*'
   pull_request:
-  workflow_dispatch:
+  release:
 concurrency:
   # Skip intermediate builds: always.
   # Cancel intermediate builds: only if it is a pull request build.
@@ -73,6 +74,10 @@ jobs:
       - uses: julia-actions/julia-docdeploy@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+      - name: Build docs
+        run: julia --project=docs docs/make.jl
+        env:
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
       - name: Run doctests
         shell: julia --project=docs --color=yes {0}
