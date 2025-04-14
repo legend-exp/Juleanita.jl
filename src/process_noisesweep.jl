@@ -37,18 +37,13 @@ function process_noisesweep(data::LegendData, period::DataPeriod, run::DataRun, 
 
     # plot and save 
     asic_meta = data.metadata.hardware.asic(filekeys[1])
-    add_gain = if diff_output
-        2 * asic_meta.add_gain
-    else
-        asic_meta.add_gain
-    end
+
     for yunit in [:ADC, :e, :keV, :µV]
         plt = plot_noise_sweep(report_rt, yunit; 
                 DAQ_bits = 14, DAQ_dynamicrange_V  = 2.0, 
-                add_gain = add_gain, 
-                cap_feedback =  ustrip.(uconvert(u"F", asic_meta.cap_feedback)), 
+                gain =  asic_meta.gain_tot, 
                 cap_inj = ustrip.(uconvert(u"F", asic_meta.cap_inj)),
-                title = get_plottitle(filekeys[1], _channel2detector(data, channel), "Noise sweep") * @sprintf("\n gain add. = %.1f, Cf = %.0f fF, Cinj = %.0f fF", add_gain, ustrip.(uconvert(u"fF", asic_meta.cap_feedback)), ustrip.(uconvert(u"fF", asic_meta.cap_inj)) )) 
+                title = get_plottitle(filekeys[1], _channel2detector(data, channel), "Noise sweep") * @sprintf("\n gain add. = %.1f, Cf = %.0f fF, Cinj = %.0f fF",  asic_meta.gain_tot, ustrip.(uconvert(u"fF", asic_meta.cap_feedback)), ustrip.(uconvert(u"fF", asic_meta.cap_inj)) )) 
         plt_folder = LegendDataManagement.LDMUtils.get_pltfolder(data, filekeys[1], :noise_sweep) * "/"
         pname = plt_folder *  _get_pltfilename(data, filekeys[1], channel, Symbol("noisesweep_$(filter_type)_$(waveform_type)_$(plt.yunit)"))
         save(pname, plt.fig)
@@ -59,9 +54,7 @@ function process_noisesweep(data::LegendData, period::DataPeriod, run::DataRun, 
 end
 
 
-function plot_noise_sweep(report, yunit::Symbol; DAQ_bits::Int = 14, DAQ_dynamicrange_V::T = 2.0, add_gain::T = 1.0, cap_feedback::T = 500.0*1e-15, cap_inj::T = 500.0*1e-15, title = "") where T<:Real
-    gain = add_gain * cap_inj / cap_feedback
-
+function plot_noise_sweep(report, yunit::Symbol; DAQ_bits::Int = 14, DAQ_dynamicrange_V::T = 2.0, gain::T = 1.0,  cap_inj::T = 500.0*1e-15, title = "") where T<:Real
     ylabel_extra = "" 
     y_scale = if yunit == :ADC 
         1.0
