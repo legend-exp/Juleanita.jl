@@ -44,8 +44,13 @@ end
 ###  Conversion util functions (ADC - Volts - electrons - keV)
 """
     _ADC_to_V(ADC::Real, dynamicrange_V::Real, bits::Int)
-Convert ADC-code from digitizer into voltage. The ADC-code is assumed to be in the range [0, 2^bits] corresponding to voltages within the dynamic range.
-INPUTS:
+Convert ADC-code from digitizer into voltage. The ADC-code is assumed to be in the range `[0, 2^bits]` corresponding to voltages within the dynamic range.
+
+```math 
+V  = \\frac{V_{\\textrm{dynamic range}}}{2^{\\textrm{bits}}} \\cdot \\textrm{ADC}
+```
+
+Inputs:
 - `ADC`: ADC-code from digitizer
 - `dynamicrange_V`: dynamic range of the DAQ in Volts
 - `bits`: number of bits of the ADC
@@ -57,8 +62,13 @@ end
 """
     _ADC_to_electrons(ADC::Real, capacitance_F::Real; bits::Int = 14, dynamicrange_V::Real = 2.0, gain::Real = 1.0)
 Convert ADC-code from pulser into injected charge in pulser_ADC_to_electrons
+
+```math 
+Q[e^{-}]  = (\\frac{V_{\\textrm{dynamic range}}}{2^{\\textrm{bits}}} \\cdot \\textrm{ADC}) \\cdot \\frac{1}{\\textrm{gain}} \\cdot \\frac{C_{\\textrm{inj}}}{e^{-}}
+```
+
 Inputs:
-- `ADC``: ADC-code from digitizer  
+- `ADC`: ADC-code from digitizer  
 - `capacitance_F`: capacitance of the system (could be pulser, detector, or combination) in Farad
 - `bits`: number of bits of the ADC
 - `dynamicrange_V`: dynamic range of the DAQ in Volts
@@ -86,6 +96,10 @@ end
 """
     V_to_electrons(Voltage_V::Real, capacitance_F::Real; gain::Real = 1.0)
 Convert voltage into a charge in electrons based on the capacitance of the system (could be pulser, detector, or combination).
+
+```math 
+Q[e^{-}]  =  \\frac{V}{\\textrm{gain}} \\cdot \\frac{C_{\\textrm{inj}}}{e^{-}}
+```
 """
 function V_to_electrons(Voltage_V::Real, capacitance_F::Real; gain::Real = 1.0)
     return (Voltage_V/gain * capacitance_F) / electron_charge  # charge in electrons

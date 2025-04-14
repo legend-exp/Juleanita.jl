@@ -148,6 +148,7 @@ export read_folder_csv_oscilloscope
 """
 csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, category::DataCategoryLike, channel::ChannelId, csv_folder::String; heading::Int = 17, nwvfmax::Union{Int, Float64, Vector{Int64}} = NaN, nChannels::Int = 2, 
         ti::ClosedInterval{<:Quantity} = 0.0u"µs".. 550.0u"µs")
+        
 - converts csv files from oscilloscope to lh5 files
 - format of csv file matches the one from an oscilloscope...might be different for other systems
 - saves the lh5 files in the raw tier defined in "LEGEND_DATA_CONFIG"

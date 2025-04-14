@@ -2,10 +2,13 @@
 """
     process_dsp(data::LegendData, period::DataPeriod, run::DataRun, category::Union{Symbol, DataCategory}, channel::ChannelId, dsp_config::DSPConfig, τ_pz::Quantity{<:Real}, pars_filter::PropDict; reprocess::Bool = false )  
     process_dsp(data::LegendData, period::DataPeriod, run::DataRun, category::Union{Symbol, DataCategory}, channel::ChannelId ; kwargs... ) 
+
+Goal: 
 - run the DSP processing for all raw files in the given period, run, category and channel.
-- based on "simple_dsp" function
+- based on `simple_dsp` function
 - save the results in the jldsp tier
 - if reprocess is false, it will skip the files that are already processed
+
 INPUTS:
     - `data::LegendData` LegendData object. You need `"LEGEND_DATA_CONFIG"` to construct this, e.g. `l200 = LegendData(:l200)`
     - `period::DataPeriod` data period, e.g. `DataPeriod(1)`
@@ -15,8 +18,10 @@ INPUTS:
     - `dsp_config::DSPConfig` DSP configuration object. If not specified will take default from metadata
     - `τ_pz::Quantity{<:Real}` decay time used for pole-zero correction. If not specified will take from rpars.pz
     - `pars_filter::PropDict` optimized filter parameters used in DSP. If not specified will take from rpars.fltopt
+
 KWARGS:
     - `reprocess::Bool` reprocess the files or not
+    
 OUTPUTS:
     - save the DSP results in the jldsp tier
     - print the progress
