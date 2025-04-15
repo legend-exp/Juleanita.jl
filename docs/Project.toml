@@ -2,4 +2,8 @@
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
 Juleanita = "ee18b94d-4c1a-4e9f-a3c9-5db9bff1343f"
+LegendDataManagement = "9feedd95-f0e0-423f-a8dc-de0970eae6b3"
+LegendHDF5IO = "c9265ca6-b027-5446-b1a4-febfa8dd10b0"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
+TypedTables = "9d95f2ec-7b3d-5a63-8d20-e2491e220bb9"
