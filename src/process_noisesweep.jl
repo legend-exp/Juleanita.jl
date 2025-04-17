@@ -1,6 +1,6 @@
 function process_noisesweep end
 export process_noisesweep
-function process_noisesweep(data::LegendData, period::DataPeriod, run::DataRun, category::Union{Symbol, DataCategory}, channel::ChannelId, dsp_config::DSPConfig; reprocess::Bool = false, filter_type::Symbol = :trap, waveform_type::Symbol = :waveform, diff_output::Bool = true, n_evts::Int = 1000)
+function process_noisesweep(data::LegendData, period::DataPeriod, run::DataRun, category::Union{Symbol, DataCategory}, channel::ChannelId, dsp_config::DSPConfig; reprocess::Bool = false, filter_type::Symbol = :trap, waveform_type::Symbol = :waveform, n_evts::Union{<:Float64, <:Int} = NaN, scoperun::Bool = false)
     filekeys = search_disk(FileKey, data.tier[DataTier(:raw), category , period, run])
     
     # load or calculate noise sweep 
@@ -13,7 +13,12 @@ function process_noisesweep(data::LegendData, period::DataPeriod, run::DataRun, 
     if !haskey(pars_pd, Symbol(waveform_type))
         # load data and do noise sweep 
         data_raw = read_ldata(data, DataTier(:raw), filekeys, channel)
-        wvfs = data_raw[waveform_type][1:n_evts]
+        wvfs = if isfinite(n_evts)
+            n_evts = n_evts < length(data_raw[waveform_type]) ? n_evts : length(data_raw[waveform_type])
+            data_raw[waveform_type][1:n_evts]
+        else
+            data_raw[waveform_type]
+        end
         result_rt, report_rt = noise_sweep(filter_type, wvfs, dsp_config)
         result_rt = merge(result_rt, (rt = report_rt.rt, noise = report_rt.noise, ft = report_rt.ft))
 
@@ -38,8 +43,14 @@ function process_noisesweep(data::LegendData, period::DataPeriod, run::DataRun, 
     # plot and save 
     asic_meta = data.metadata.hardware.asic(filekeys[1])
 
-    for yunit in [:ADC, :e, :keV, :µV]
-        plt = plot_noise_sweep(report_rt, yunit; 
+    plot_fun, plot_units = if scoperun
+        plot_noise_sweep_osci, [:e, :keV, :µV]
+    else
+        plot_noise_sweep, [:ADC, :e, :keV, :µV]
+    end
+
+    for yunit in plot_units
+        plt = plot_fun(report_rt, yunit; 
                 DAQ_bits = 14, DAQ_dynamicrange_V  = 2.0, 
                 gain =  asic_meta.gain_tot, 
                 cap_inj = ustrip.(uconvert(u"F", asic_meta.cap_inj)),
@@ -88,3 +99,37 @@ function plot_noise_sweep(report, yunit::Symbol; DAQ_bits::Int = 14, DAQ_dynamic
     return (fig = fig, ax = ax, y_scale = y_scale, yunit = yunit)
 end
 export plot_noise_sweep
+
+function plot_noise_sweep_osci(report, yunit::Symbol; gain::T = 1.0,  cap_inj::T = 500.0*1e-15, title = "", DAQ_bits::Int = 1, DAQ_dynamicrange_V::T = 1.0) where T<:Real
+    ylabel_extra = "" 
+    y_scale = if yunit == :µV
+        ylabel_extra = " / gain" ;
+        1e6 ./ gain
+    elseif yunit == :keV
+        V_to_electrons(1.0, cap_inj; gain = gain) *  Ge_Energy_per_eholePair(90) / 1e3
+    elseif yunit == :e
+        V_to_electrons(1.0, cap_inj; gain = gain)
+    else
+        @warn("Invalid yunit")
+        return
+    end 
+    x = report.rt
+    x_unit = unit(x[1])
+    x = ustrip.(x)
+    y = report.noise .* y_scale
+    x_inter = range(x[1], stop = maximum(x[findall(isfinite.(y))]), step = 0.05); 
+    y_inter = report.f_interp.(x_inter) .* y_scale
+ 
+    # plot  
+    fig = Figure()
+    ax = Axis(fig[1, 1], 
+        title = title,
+        xlabel = "Rise time ($x_unit)", ylabel = "Noise$ylabel_extra ($yunit)",
+        limits = ((extrema(x)[1] - 0.2, extrema(x)[2] + 0.2), (nothing, nothing))) 
+    lines!(ax, x_inter, y_inter, color = :deepskyblue2, linewidth = 3, linestyle = :solid, label =  @sprintf("noise min = %.1f %s (ft = %.2f %s, rt = %.1f %s)", report.min_noise * y_scale, yunit, ustrip(report.ft), unit(report.ft), ustrip(report.rt_opt), unit(report.rt_opt)))
+    Makie.scatter!(ax, x, y,  color = :black, label = "Data")
+    axislegend()
+    fig
+    return (fig = fig, ax = ax, y_scale = y_scale, yunit = yunit)
+end
+export plot_noise_sweep_osci

@@ -4,6 +4,7 @@ using BSplineKit: BSplineOrder, interpolate as BSinterpolate
 using CSV
 using Dates 
 using DataFrames
+using Distributions
 using HDF5
 using IntervalSets
 using JSON
@@ -47,6 +48,7 @@ include("process_qualitycuts.jl")
 include("process_energy_calibration.jl")
 include("process_hit.jl")
 include("process_peakfits.jl")
+include("process_pulser_linearity.jl")
 include("process_noisesweep.jl")
 end
 
