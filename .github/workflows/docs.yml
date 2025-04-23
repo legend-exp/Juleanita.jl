@@ -32,11 +32,10 @@ jobs:
       - uses: julia-actions/cache@v2
       - name: registry_add
         run: julia --project=docs add_registries.jl
-      - name: Configure doc environment
+      - name: Instantiate doc environment
         shell: julia --project=docs --color=yes {0}
         run: |
           using Pkg
-          Pkg.develop(PackageSpec(path=pwd()))
           Pkg.instantiate()
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-docdeploy@v1
