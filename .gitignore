@@ -7,8 +7,17 @@
 *.json
 *.csv
 
-# Julia / system files
-/Manifest*.toml
+# images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.pdf
+*.eps
+*.tiff
+
+# Julia and system files
 /docs/Manifest*.toml
 /test/Manifest*.toml
 /docs/build/
