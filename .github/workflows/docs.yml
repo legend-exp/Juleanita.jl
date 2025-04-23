@@ -1,4 +1,4 @@
-name: CI
+name: docs
 on:
   push:
     branches:
@@ -30,8 +30,6 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/cache@v2
-      - name: registry_add
-        run: julia --project=docs add_registries.jl
       - name: Configure doc environment
         shell: julia --project=docs --color=yes {0}
         run: |
