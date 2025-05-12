@@ -9,8 +9,8 @@ The ML-based quality cuts follow a two-step approach:
 2. **Support Vector Machine (SVM)**  
 
 
-> ⚠️ **Note on Automation**  
-> The machine learning-based quality cuts aren't fully automated. Unlike other processing steps (e.g. DSP, energy calibration, ...), automation is not possible due to the requirement for **manual relabeling** of exemplars (see step 1.2 and `03_AP_relabel.jl`).  Therefore, the ML quality cuts are provided as standalone scripts that must be **manually adapted** to suit your specific use case.
+> ⚠️ **Note on Automation:**   
+> The machine learning-based quality cuts aren't fully automated. Unlike other processing steps (e.g. DSP, energy calibration), automation is not possible due to the requirement for **manual relabeling** of exemplars (see step 1.2 and `03_AP_relabel.jl`).  Therefore, the ML quality cuts are provided as standalone scripts that must be **manually adapted** to suit your specific use case.
 
 # Strategy
 ## 1. Affinity Propagation (AP)
@@ -21,7 +21,7 @@ The ML-based quality cuts follow a two-step approach:
   2. **Identifies** exemplars — representative waveforms for each cluster.
   3. **Assigns** each waveform a label, referred to as the **AP label** (an integer between 1 and *n_clusters*).
 
-> Due to its high memory usage, AP is applied only to a subset of the data (typically ≤ 10,000 waveforms).
+> Due to its high memo ry usage, AP is applied only to a subset of the data (typically ≤ 10,000 waveforms).
 
 ### 1.1 Hyperparameter optmization
 Affinity propagation has two hyperparameters: the **preference** and the **damping**. 
@@ -43,7 +43,7 @@ Our goal is to optimize the hyperparameters with respect to cluster size (and co
 This figure shows an example of AP hyperparameter optimization. In case the AP didn't converge for a (preference, damping)-configuration, the grid point is colored grey. 
 
 <figure>
-    <img src="./example_plots/AP_hyperpars_opt_Numer of clusters_5dampings0.5-0.99_10qprefs0.01-0.5.png" alt="Example of hyper-parameter optimization" width="500">
+    <img src="https://github.com/LisaSchlueter/Juleanita.jl/blob/9812fd662514e7148b29f16b1ae6f17ccb562da0/docs/src/example_plots/AP_hyperpars_opt_Numer%20of%20clusters_5dampings0.5-0.99_10qprefs0.01-0.5.png" width="500">
     <figcaption><b>Figure 1:</b> AP-hyperparameter optimization</figcaption>
 </figure>
 
