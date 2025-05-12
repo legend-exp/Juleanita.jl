@@ -21,7 +21,7 @@ The ML-based quality cuts follow a two-step approach:
   2. **Identifies** exemplars — representative waveforms for each cluster.
   3. **Assigns** each waveform a label, referred to as the **AP label** (an integer between 1 and *n_clusters*).
 
-> Due to its high memory usage, AP is applied only to a subset of the data (typically ≤ 10,000 waveforms).
+> Due to its high memo ry usage, AP is applied only to a subset of the data (typically ≤ 10,000 waveforms).
 
 ### 1.1 Hyperparameter optmization
 Affinity propagation has two hyperparameters: the **preference** and the **damping**. 
