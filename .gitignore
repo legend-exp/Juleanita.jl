@@ -21,3 +21,6 @@
 /docs/build/
 .vscode/
 .DS_Store
+
+# SLURM files
+*.out
