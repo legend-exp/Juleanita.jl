@@ -42,14 +42,7 @@ Our goal is to optimize the hyperparameters with respect to cluster size (and co
 
 This figure shows an example of AP hyperparameter optimization. In case the AP didn't converge for a (preference, damping)-configuration, the grid point is colored grey. 
 
-<<<<<<< HEAD
 ![AP hyperparameter optimization](example_plots/AP_hyperpars_opt_Nclusters_5dampings0.5-0.99_10qprefs0.01-0.5.png)
-=======
-<figure>
-    <img src="example_plots/AP_hyperpars_opt_Numer%20of%20clusters_5dampings0.5-0.99_10qprefs0.01-0.5.png" width="500">
-    <figcaption><b>Figure 1:</b> AP-hyperparameter optimization</figcaption>
-</figure>
->>>>>>> 2b714e4 (debug doc)
 
 **Figure 1:** *AP-hyperparameter optimization*
 
