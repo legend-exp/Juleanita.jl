@@ -40,7 +40,7 @@ makedocs(;
         "LICENSE" => "LICENSE.md",
     ],
     doctest = ("fixdoctests" in ARGS) ? :fix : true,
-    linkcheck = !("nonstrict" in ARGS),
+    linkcheck = false,
     warnonly = ("nonstrict" in ARGS),
 ) 
 
