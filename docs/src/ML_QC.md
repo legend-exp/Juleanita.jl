@@ -21,7 +21,7 @@ The ML-based quality cuts follow a two-step approach:
   2. **Identifies** exemplars — representative waveforms for each cluster.
   3. **Assigns** each waveform a label, referred to as the **AP label** (an integer between 1 and *n_clusters*).
 
-> Due to its high memo ry usage, AP is applied only to a subset of the data (typically ≤ 10,000 waveforms).
+> Due to its high memory usage, AP is applied only to a subset of the data (typically ≤ 10,000 waveforms).
 
 ### 1.1 Hyperparameter optmization
 Affinity propagation has two hyperparameters: the **preference** and the **damping**. 
@@ -43,7 +43,7 @@ Our goal is to optimize the hyperparameters with respect to cluster size (and co
 This figure shows an example of AP hyperparameter optimization. In case the AP didn't converge for a (preference, damping)-configuration, the grid point is colored grey. 
 
 <figure>
-    <img src="https://github.com/LisaSchlueter/Juleanita.jl/blob/9812fd662514e7148b29f16b1ae6f17ccb562da0/docs/src/example_plots/AP_hyperpars_opt_Numer%20of%20clusters_5dampings0.5-0.99_10qprefs0.01-0.5.png" width="500">
+    <img src="example_plots/AP_hyperpars_opt_Numer%20of%20clusters_5dampings0.5-0.99_10qprefs0.01-0.5.png" width="500">
     <figcaption><b>Figure 1:</b> AP-hyperparameter optimization</figcaption>
 </figure>
 
@@ -73,12 +73,12 @@ In a **manual** post-processing step, we map these numeric **AP labels** to mean
 | 13       | noise         |
 
 <figure>
-    <img src="./example_plots/AP_exemplars_damp0.5_qpref0.3.png" alt="Example of exemplars with AP-labels" width="800">
+    <img src="example_plots/AP_exemplars_damp0.5_qpref0.3.png" alt="Example of exemplars with AP-labels" width="800">
     <figcaption><b>Figure 2:</b> Exemplars with AP-labels</figcaption>
 </figure>
 
 <figure>
-    <img src="./example_plots/AP_exemplars_QClabels_damp0.5_qpref0.3.png" alt="Example of exemplars with QC-labels" width="800">
+    <img src="example_plots/AP_exemplars_QClabels_damp0.5_qpref0.3.png" alt="Example of exemplars with QC-labels" width="800">
     <figcaption><b>Figure 3:</b> Exemplars with QC-labels</figcaption>
 </figure>
 
@@ -90,7 +90,7 @@ SVM is a supervised learning algorithm. We train the SVM on the same waveforms u
 
 Once trained, the SVM model can predict QC labels for new, unseen waveforms—effectively scaling the AP-based classification to larger datasets.
 <figure>
-    <img src="./example_plots/SVM_train_cost1.0_gamma0.5.png" alt="Example of " width="800">
+    <img src="example_plots/SVM_train_cost1.0_gamma0.5.png" alt="Example of " width="800">
     <figcaption><b>Figure 4:</b> Example of QC-labels obtained from AP-SVM model on training data set</figcaption>
 </figure>
 
