@@ -38,7 +38,7 @@ makedocs(;
         ],
         "ML Quality Cuts" => "ML_QC.md",
         "API" => "api.md",
-         "ML Quality Cuts" => "ML_QC.md",
+        "ML Quality Cuts" => "ML_QC.md",
         "LICENSE" => "LICENSE.md",
     ],
     doctest = ("fixdoctests" in ARGS) ? :fix : true,
