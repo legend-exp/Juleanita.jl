@@ -28,6 +28,7 @@ makedocs(;
     format=Documenter.HTML(
         prettyurls = !("local" in ARGS),
         canonical="https://LisaSchlueter.github.io/Juleanita.jl/stable/",
+        edit_branch = "main"
     ),
     pages=[
         "Home" => "index.md",
@@ -48,4 +49,5 @@ deploydocs(;
     repo="github.com/LisaSchlueter/Juleanita.jl",
     forcepush = true, 
     push_preview = true,
+    devbranch = "dev"
 )
