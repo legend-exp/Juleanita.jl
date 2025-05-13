@@ -48,5 +48,5 @@ deploydocs(;
     repo="github.com/LisaSchlueter/Juleanita.jl",
     forcepush = true, 
     push_preview = true,
-    devbranch = "dev",
+     devbranch = "dev"
 )
