@@ -15,5 +15,5 @@ This software package provides a set of function "processors" for full processin
 Using only a single detector for simplicity, Julenita.jl serves as an example of the full processing using the Julia software stack.
 
 ## Documentation
-* [Documentation for stable version](https://LisaSchlueter.github.io/Juleanita.jl/stable/)
-* [Documentation for development version](https://LisaSchlueter.github.io/Juleanita.jl/dev/)
+* [Documentation for stable version](https://LisaSchlueter.github.io/Juleanita.jl/stable/) (main branch)
+* [Documentation for development version](https://LisaSchlueter.github.io/Juleanita.jl/dev/) (dev branch)
