@@ -82,7 +82,8 @@ In a **manual** post-processing step, we map these numeric **AP labels** to mean
     <figcaption><b>Figure 3:</b> Exemplars with QC-labels</figcaption>
 </figure>
 
-
+![Exemplars with QC-labels](example_plots/AP_exemplars_QClabels_damp0.5_qpref0.3.png)
+**Figure 3.2:** *Exemplars with QC-labels*
 
 ## 2. Support Vector Machine (SVM)
 
