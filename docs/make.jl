@@ -49,9 +49,5 @@ deploydocs(;
     repo="github.com/LisaSchlueter/Juleanita.jl",
     forcepush = true, 
     push_preview = true,
-<<<<<<< HEAD
     devbranch = "dev"
-=======
-    devbranch = "dev",
->>>>>>> cd6d208 (initiate doc deployment of dev branch)
 )
