@@ -35,10 +35,9 @@ makedocs(;
         "Tutorials" => [
             "Getting Started" => "tutorials/getting_started.md",
             "Basic I/O" => "tutorials/reading_data.md",
+            "ML Quality Cuts" => "ML_QC.md",
         ],
-        "ML Quality Cuts" => "ML_QC.md",
         "API" => "api.md",
-        "ML Quality Cuts" => "ML_QC.md",
         "LICENSE" => "LICENSE.md",
     ],
     doctest = ("fixdoctests" in ARGS) ? :fix : true,
@@ -50,5 +49,9 @@ deploydocs(;
     repo="github.com/LisaSchlueter/Juleanita.jl",
     forcepush = true, 
     push_preview = true,
+<<<<<<< HEAD
     devbranch = "dev"
+=======
+    devbranch = "dev",
+>>>>>>> cd6d208 (initiate doc deployment of dev branch)
 )
