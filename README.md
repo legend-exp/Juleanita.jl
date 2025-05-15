@@ -1,6 +1,6 @@
 # Juleanita.jl 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://LisaSchlueter.github.io/Juleanita.jl/stable/)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://LisaSchlueter.github.io/Juleanita.jl/dev/)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://legend-exp.github.io/Juleanita.jl/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://legend-exp.github.io/Juleanita.jl/dev/)
 [![Build Status](https://github.com/LisaSchlueter/Juleanita.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/LisaSchlueter/Juleanita.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/LisaSchlueter/Juleanita.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/LisaSchlueter/Juleanita.jl)
 
@@ -15,5 +15,5 @@ This software package provides a set of function "processors" for full processin
 Using only a single detector for simplicity, Julenita.jl serves as an example of the full processing using the Julia software stack.
 
 ## Documentation
-* [Documentation for stable version](https://LisaSchlueter.github.io/Juleanita.jl/stable/) (latest tag on main)
-* [Documentation for development version](https://LisaSchlueter.github.io/Juleanita.jl/dev/) (dev branch)
+* [Documentation for stable version](https://legend-exp.github.io/Juleanita.jl/stable/) (latest tag on main)
+* [Documentation for development version](https://legend-exp.github.io/Juleanita.jl/dev/) (dev branch)
