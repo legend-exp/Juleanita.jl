@@ -10,7 +10,7 @@ using TypedTables
 ````
 
 Now you define which data set you want to read.
-For more information on the datasets, check out the documentation in [teststand-metadata](https://github.com/LisaSchlueter/teststand-metadata/tree/main/ppc01/doc)
+For more information on the datasets, check out the documentation in [teststand-metadata](https://github.com/legend-exp/teststand-metadata/tree/main/ppc01/doc)
 
 ```` reading_data
 category = DataCategory(:cal)

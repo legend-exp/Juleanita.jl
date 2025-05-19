@@ -1,8 +1,8 @@
 # Juleanita.jl 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://legend-exp.github.io/Juleanita.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://legend-exp.github.io/Juleanita.jl/dev/)
-[![Build Status](https://github.com/LisaSchlueter/Juleanita.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/LisaSchlueter/Juleanita.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/LisaSchlueter/Juleanita.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/LisaSchlueter/Juleanita.jl)
+[![Build Status](https://github.com/legend-exp/Juleanita.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/legend-exp/Juleanita.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/legend-exp/Juleanita.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/legend-exp/Juleanita.jl)
 
 **Juleanita**  (little <a href="https://github.com/legend-exp/Juleana.jl/tree/main">
   <img src="https://raw.githubusercontent.com/legend-exp/Juleana.jl/main/docs/src/assets/logo.svg" alt="Juleana.jl" width="60">

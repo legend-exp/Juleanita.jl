@@ -27,7 +27,7 @@ makedocs(;
     sitename="Juleanita.jl",
     format=Documenter.HTML(
         prettyurls = !("local" in ARGS),
-        canonical="https://LisaSchlueter.github.io/Juleanita.jl/stable/",
+        canonical="https://legend-exp.github.io/Juleanita.jl/stable/",
         edit_branch = "main"
     ),
     pages=[
@@ -46,7 +46,7 @@ makedocs(;
 ) 
 
 deploydocs(;
-    repo="github.com/LisaSchlueter/Juleanita.jl",
+    repo="github.com/legend-exp/Juleanita.jl",
     forcepush = true, 
     push_preview = true,
 )
