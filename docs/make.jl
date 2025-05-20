@@ -49,4 +49,7 @@ deploydocs(;
     repo="github.com/legend-exp/Juleanita.jl",
     forcepush = true, 
     push_preview = true,
+    versions = ["stable" => "v^",
+                "main" => "main",
+                "dev" => "dev"],
 )
