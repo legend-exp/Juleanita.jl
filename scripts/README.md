@@ -1,1 +1,1 @@
-../docs/src/example_scripts.md
+../docs/src/tutorials/example_scripts.md
