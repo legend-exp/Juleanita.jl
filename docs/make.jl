@@ -50,8 +50,7 @@ deploydocs(;
     repo="github.com/legend-exp/Juleanita.jl",
     forcepush = true, 
     push_preview = true,
-    devbranch = "dev",
+    devbranch = "main",
     versions = ["stable" => "v^",
-                "main" => "main",
-                "dev" => "dev"],
+                "dev" => "main"],
 )
