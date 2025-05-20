@@ -35,6 +35,7 @@ makedocs(;
         "Tutorials" => [
             "Getting Started" => "tutorials/getting_started.md",
             "Basic I/O" => "tutorials/reading_data.md",
+            "Example scripts" => "tutorials/example_scripts.md",
             "ML Quality Cuts" => "ML_QC.md",
         ],
         "API" => "api.md",
