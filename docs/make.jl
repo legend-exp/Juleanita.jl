@@ -28,7 +28,7 @@ makedocs(;
     format=Documenter.HTML(
         prettyurls = !("local" in ARGS),
         canonical="https://legend-exp.github.io/Juleanita.jl/stable/",
-        edit_branch = "main"
+        edit_link = :commit
     ),
     pages=[
         "Home" => "index.md",
