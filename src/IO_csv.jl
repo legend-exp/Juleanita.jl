@@ -286,7 +286,7 @@ function skutek_csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, c
     timestamp_abs_unix  = datetime2unix(DateTime(split(header[1,2], "Time: ")[2], dateformat"yyyy-mm-dd HH:MM:SS"))
 
     # load first file for relative timestamp start 
-    timestamp_evt_start = Int64(CSV.read(files_csv[1], DataFrame; delim='\t', comment = "#", header = false)[!,1][1])
+    timestamp_evt_start = parse(Int64, replace(CSV.read(files_csv[1], DataFrame; delim='\t', comment = "#", header = false)[!,1][1], r"\D" => ""))
     eventnumber_max = 0 # to make eventnumber unique and increasing for all files in a run 
 
     function _skutek_csv_to_lh5(filename::String, n_max::Int, chmode::Symbol)
@@ -298,8 +298,8 @@ function skutek_csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, c
         
         # Timestamp: Absolute time of the measurement in unix time. (seconds since 1970-01-01 00:00:00 UTC)
         # The timestamp per waveform is given in units of clock cycles since the last reset of the FPGA. 
-        timestamp_rel = ustrip(uconvert(u"s",timestep)).* (Vector(Int64.(f.timestamp)) .- timestamp_evt_start)
-        timestamp_unix = timestamp_abs_unix .+ round.(Int64,timestamp_rel)
+        timestamp_rel = ustrip(uconvert(u"s",timestep)).* (Vector(parse.(Int64, replace.(f.timestamp, r"\D" => ""))) .- timestamp_evt_start)
+        timestamp_unix = timestamp_abs_unix .+ round.(Int64, timestamp_rel)
        
         # Read channels 
         channel1 = map(x -> Int32.(x), JSON.parse.(f.ch1))
