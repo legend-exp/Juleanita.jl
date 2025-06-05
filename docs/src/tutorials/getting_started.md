@@ -88,7 +88,7 @@ pkg> add <package-name>
 ### 5.2 Legend registry
 To be able to add and use Legend-specific Julia packages, you need to add the Legend registry:  
 ```julia 
-julia> include(download("https://raw.githubusercontent.com/legend-exp/legend-julia-tutorial/main/legend_julia_setup.jl"))
+julia> using Pkg; pkg"registry add General https://github.com/legend-exp/LegendJuliaRegistry.git"
 ```
 This needs to be done only once. For reference see [Julia Software Stack (Confluence)](https://legend-exp.atlassian.net/wiki/spaces/LEGEND/pages/494632973/Julia+Software+Stack#The-LEGEND-Julia-package-registry).
 
