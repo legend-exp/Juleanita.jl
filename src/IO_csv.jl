@@ -262,7 +262,9 @@ convert csv files from Skutek digitizer "FemtoDAQ Vireo" to lh5 files
     - `:diff`  ch1 - ch2 is stored as `raw/waveform`
     - `:diffplus` ch1 - ch2 is stored as `raw/waveform` **AND** both channels are stored as `raw/waveform_ch1` and `raw/waveform_ch2` (if available in data)
     - `:single` ch1 is stored as `raw/waveform` and ch2 is stored as `raw/waveform_ch2` (if available in data)
-    - `:pulser` ch1 is stored as `raw/waveform` and ch2 is stored as `raw/pulser`
+    - `:pulser` 
+            - Vireo DAQ: ch1 is stored as `raw/waveform` and ch2 is stored as `raw/pulser`
+            - KingFisher DAQ: ch1-ch2 is stored as `raw/waveform` and ch3 is stored as `raw/pulser`
 """
 function sktutek_csv_to_lh5 end
 export skutek_csv_to_lh5
@@ -282,23 +284,30 @@ function skutek_csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, c
     filter!(x -> occursin(".ecsv", x), files_csv)
 
     # read HEADER of first file to get the absolute time of the measurement
-    header = CSV.read(files_csv[1], DataFrame; delim=':', header = false, limit = 1, silencewarnings = true);
-    timestamp_abs_unix  = datetime2unix(DateTime(split(header[1,2], "Time: ")[2], dateformat"yyyy-mm-dd HH:MM:SS"))
+    header_nt = csvheader_to_nt(files_csv[1])
+    timestamp_abs_unix  = datetime2unix(DateTime(split(header_nt.Datetime, "Time: ")[2], dateformat"yyyy-mm-dd HH:MM:SS"))
 
     # load first file for relative timestamp start 
     timestamp_evt_start = parse(Int64, replace(CSV.read(files_csv[1], DataFrame; delim='\t', comment = "#", header = false)[!,1][1], r"\D" => ""))
     eventnumber_max = 0 # to make eventnumber unique and increasing for all files in a run 
 
-    function _skutek_csv_to_lh5(filename::String, n_max::Int, chmode::Symbol)
+    function _skutek_csv_to_lh5(filename::String, n_max::Int, chmode::Symbol; time_unix_prev::Float64 = NaN)
         # read file and rename columns for better readability 
         f = CSV.read(filename, DataFrame; delim='\t',  comment = "#", header = false) 
-        nchannel = size(f,2) - 2
-        column_names = ["timestamp", "channellist", "ch" .* string.(1:nchannel)...]
+        if header_nt.Product == "KingFisher"
+            nchannel = size(f,2) - 1
+            column_names = ["timestamp", "ch" .* string.(1:nchannel)...]
+        elseif header_nt.Product == "Vireo"
+            nchannel = size(f,2) - 2
+            column_names = ["timestamp", "channellist", "ch" .* string.(1:nchannel)...]
+        else
+            error("Product $(header_nt.Product) not supported. Only Vireo and KingFisher is supported for now.")
+        end
         rename!(f, Symbol.(column_names))
         
         # Timestamp: Absolute time of the measurement in unix time. (seconds since 1970-01-01 00:00:00 UTC)
         # The timestamp per waveform is given in units of clock cycles since the last reset of the FPGA. 
-        timestamp_rel = ustrip(uconvert(u"s",timestep)).* (Vector(parse.(Int64, replace.(f.timestamp, r"\D" => ""))) .- timestamp_evt_start)
+        timestamp_rel = ustrip(uconvert(u"s",timestep)).* (Vector(parse.(Int64, replace.(f.timestamp, r"\D" => ""))) .- timestamp_evt_start) # in s 
         timestamp_unix = timestamp_abs_unix .+ round.(Int64, timestamp_rel)
        
         # Read channels 
@@ -308,10 +317,16 @@ function skutek_csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, c
         else 
             []
         end 
+        channel3 = if nchannel > 2
+            map(x -> Int32.(x), JSON.parse.(f.ch3))
+        else 
+            []
+        end
+        
         nsamples = length(channel1[1])
         times = 0.0u"µs":timestep:((nsamples - 1)*timestep)
 
-        if (chmode == :diff) || (chmode == :diffplus)
+        if (chmode == :diff) || (chmode == :diffplus) || (chmode == :pulser && header_nt.Product == "KingFisher")
             ch_diff = channel1 .- channel2
             wvfs = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel1)), ch_diff)])
         else
@@ -319,19 +334,34 @@ function skutek_csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, c
         end 
 
         # save to lh5 files 
-        filekey = string(FileKey(data.name, period, run, category, Timestamp(timestamp_unix[1])))
+        time_unix_fk = timestamp_unix[1]
+        if isfinite(time_unix_prev) && (timestamp_unix[1] <= time_unix_prev)
+            time_unix_fk = time_unix_prev + 1 # make sure that the filekey is unique
+        end 
+        filekey = string(FileKey(data.name, period, run, category, Timestamp(time_unix_fk)))
         h5name = h5folder * filekey * "-tier_raw.lh5"
         eventnumber = n_max .+ collect(1:length(wvfs))
 
         fid = lh5open(h5name, "w")
         fid["$channel/raw/waveform"]  = wvfs
         if chmode == :diffplus 
-            fid["$channel/raw/waveform_ch1"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel1)), channel1)])
-            fid["$channel/raw/waveform_ch2"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel2)), channel2)])
+            for (chdata, chname) in zip((channel1, channel2, channel3), ("waveform_ch1", "waveform_ch2", "waveform_ch3"))
+                if !isempty(chdata)
+                    fid["$channel/raw/$chname"] = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(chdata)), chdata)])
+                end
+            end
+        elseif chmode == :single 
+            for (chdata, chname) in zip((channel2, channel3), ("waveform_ch2", "waveform_ch3"))
+                if !isempty(chdata)
+                    fid["$channel/raw/$chname"] = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(chdata)), chdata)])
+                end
+            end
         elseif chmode == :pulser
-            fid["$channel/raw/pulser"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel2)), channel2)])
-        elseif chmode == :single && !isempty(channel2)
-            fid["$channel/raw/waveform_ch2"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel2)), channel2)])  
+            if header_nt.Product == "Vireo"
+                fid["$channel/raw/pulser"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel2)), channel2)])
+            elseif header_nt.Product == "KingFisher"
+                fid["$channel/raw/pulser"]  = ArrayOfRDWaveforms([RDWaveform(t, signal) for (t, signal) in zip(fill(times, length(channel2)), channel3)])
+            end 
         end
         fid["$channel/raw/daqenergy"] = maximum.(extrema.(wvfs.signal)) .- minimum.(extrema.(wvfs.signal)) #DAQ energy not available in oscilloscope, approx with difference between max and min, needed for compatibility with LEGEND functions
         fid["$channel/raw/eventnumber"]  = eventnumber
@@ -340,17 +370,39 @@ function skutek_csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, c
         @info "saved $(length(wvfs)) waveforms in .lh5 files with filekey: $filekey"
         close(fid)
 
-        return maximum(eventnumber)
+        return maximum(eventnumber), time_unix_fk
     end 
     
     for i in eachindex(files_csv)
         if i ==1 
             global eventnumber_max = 0
+            global time_prev = NaN
         end
-        local n_max =  _skutek_csv_to_lh5(files_csv[i], eventnumber_max, chmode)
-        global eventnumber_max = n_max 
+        local n_max, time_unix_fk =  _skutek_csv_to_lh5(files_csv[i], eventnumber_max, chmode; time_unix_prev = time_prev)
+        global eventnumber_max = n_max
+        global time_prev = time_unix_fk
     end
 end
 skutek_csv_to_lh5(data::LegendData, period::DataPeriod, run::DataRun, category::Union{Symbol, DataCategory}, channel::ChannelId; kwargs...) = skutek_csv_to_lh5(data, period, run, category, channel, data.tier[DataTier(:raw_csv), category , period, run]; kwargs...)
 
+"""
+    csvheader_to_nt(filename::String)
+read the header of a csv file and return it as a NamedTuple
+- the header is defined as all lines starting with `#` and not containing `BEGIN`
+"""
+function csvheader_to_nt(filename::String)
+    # get number of header lines in csv file (all lines starting with # and do not contain "BEGIN")
+    count =  let count = 0, io = open(filename, "r")
+        for line in eachline(io)
+            startswith(strip(line), "#") && !contains(strip(line), "BEGIN") || break
+            count += 1
+        end
+        close(io)
+        count
+    end
+    header_df = CSV.read(filename, DataFrame; delim=':', header = false, limit = count, silencewarnings = true);
+    dropmissing!(header_df)
+    header_nt = NamedTuple{Tuple(Symbol.(strip.(replace.(header_df.Column1, "#" => ""))))}(Tuple( strip.(replace.(header_df.Column2, "#" => ""))))
+    return header_nt
+end 
 

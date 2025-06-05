@@ -51,10 +51,10 @@ function process_decaytime(data::LegendData, period::DataPeriod, run::DataRun, c
     end 
     wvfs = data_peak.waveform
     decay_times = dsp_decay_times(wvfs, bl_window, tail_window)
-
+    filter!(x-> x >= 0.0 * unit(decay_times[1]), decay_times)
     cuts_τ = cut_single_peak(decay_times, min_τ, max_τ,; n_bins=nbins, relative_cut=rel_cut_fit)
     result, report = fit_single_trunc_gauss(decay_times, cuts_τ)
-    
+
     # plot 
     filekey = search_disk(FileKey, data.tier[DataTier(:raw), category , period, run])[1]
     fig = Figure()
